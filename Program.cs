@@ -14,18 +14,24 @@ namespace AutodeskFusion360ForceSignIn {
     static class Program {
 
         // Root directory of the program.
-        private static string PROGRAM_ROOT_DIRECTORY = Environment.GetEnvironmentVariable("LocalAppData") + "/Autodesk";
+        private static readonly String PROGRAM_ROOT_DIRECTORY = Environment.GetEnvironmentVariable("LocalAppData") + "/Autodesk";
 
-        // The location of the signin director to remove.
-        private static string SIGN_IN_DIRECTORY_TO_REMOVE_LOCATION = PROGRAM_ROOT_DIRECTORY + "/Web Services";
+        // The location of the signin directory to remove.
+        private static readonly String SIGN_IN_DIRECTORY_TO_REMOVE_LOCATION = PROGRAM_ROOT_DIRECTORY + "/Web Services";
 
-        // The location of the executable to run.
-        private static string EXECUTABLE_LOCATION = PROGRAM_ROOT_DIRECTORY + "/webdeploy/production/6a0c9611291d45bb9226980209917c3d/FusionLauncher.exe";
+        // The location of the program directory.
+        private static readonly String APPLICATION_DIRECTORY = PROGRAM_ROOT_DIRECTORY + "/webdeploy/production";
+
+        // The file name of the executable to find.
+        private static readonly String EXECUTABLE_FILE_NAME = "FusionLauncher.exe";
+
+        // The name of a file that is used by the executable. This is used to verify the directory.
+        private static readonly String EXECUTABLE_REQUIRED_FILE = "FusionLauncher.exe.ini";
 
         /*
          * Signs out the session.
          */
-        public static void signOutSession() {
+        static void SignOutSession() {
             // Delete the director if the directory exists.
             if (Directory.Exists(SIGN_IN_DIRECTORY_TO_REMOVE_LOCATION)) {
                 Console.WriteLine("Signing out current session.");
@@ -40,39 +46,64 @@ namespace AutodeskFusion360ForceSignIn {
             }
         }
 
-        /*
-         * Opens the application.
+        /**
+         * Finds the executable location.
          */
-        public static Process openApplication() {
-            // Create a new process.
-            Process process = new Process();
+        static String GetExecutableLocation(){
+            // Get the directories.
+            String[] ApplicationDirectory = Directory.GetDirectories(APPLICATION_DIRECTORY);
 
-            // Disable the command line.
-            process.StartInfo.UseShellExecute = false;
+            // Find the executable and required file.
+            for (int i = 0; i < ApplicationDirectory.Length; i++) {
+                String SubDirectory = ApplicationDirectory[i];
+                String ExecutableLocation = SubDirectory + "/" + EXECUTABLE_FILE_NAME;
+                String ExecutableRequiredLocation = SubDirectory + "/" + EXECUTABLE_REQUIRED_FILE;
+
+                // Return the executable location if it exists.
+                if (File.Exists(ExecutableLocation) && File.Exists(ExecutableLocation)) {
+                    return ExecutableLocation;
+                }
+            }
+
+            // Return null (not found).
+            return null;
+        }
+
+        /*
+         * Opens an application.
+         */
+        static Process OpenApplication(String ExecutableLocation) {
+            // Create a new process.
+            Process AutodeskProcess = new Process();
+
+            // Disable the command line for the process.
+            AutodeskProcess.StartInfo.UseShellExecute = false;
 
             // Set the file location.
-            process.StartInfo.FileName = EXECUTABLE_LOCATION;
+            AutodeskProcess.StartInfo.FileName = ExecutableLocation;
 
             // Start and return the process.
-            Console.WriteLine("Starting " + EXECUTABLE_LOCATION);
-            process.Start();
-            return process;
+            Console.WriteLine("Starting " + ExecutableLocation);
+            AutodeskProcess.Start();
+            return AutodeskProcess;
         }
 
         /*
          * Runs the program.
          */
-        [STAThread]
         static void Main() {
             // Sign out the last session.
-            signOutSession();
+            SignOutSession();
+            
+            // Get the executable location.
+            String ExecutableLocation = GetExecutableLocation();
 
             // Start the program and wait for it to close.
-            Process process = openApplication();
-            process.WaitForExit();
+            Process AutodeskProcess = OpenApplication(ExecutableLocation);
+            AutodeskProcess.WaitForExit();
 
             // Sign out the current session.
-            signOutSession();
+            SignOutSession();
         }
     }
 }

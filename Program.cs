@@ -51,17 +51,17 @@ namespace AutodeskFusion360ForceSignIn {
          */
         static String GetExecutableLocation(){
             // Get the directories.
-            String[] ApplicationDirectory = Directory.GetDirectories(APPLICATION_DIRECTORY);
+            String[] applicationDirectory = Directory.GetDirectories(APPLICATION_DIRECTORY);
 
             // Find the executable and required file.
-            for (int i = 0; i < ApplicationDirectory.Length; i++) {
-                String SubDirectory = ApplicationDirectory[i];
-                String ExecutableLocation = SubDirectory + "/" + EXECUTABLE_FILE_NAME;
-                String ExecutableRequiredLocation = SubDirectory + "/" + EXECUTABLE_REQUIRED_FILE;
+            for (int i = 0; i < applicationDirectory.Length; i++) {
+                String subDirectory = applicationDirectory[i];
+                String executableLocation = subDirectory + "/" + EXECUTABLE_FILE_NAME;
+                String executableRequiredLocation = subDirectory + "/" + EXECUTABLE_REQUIRED_FILE;
 
                 // Return the executable location if it exists.
-                if (File.Exists(ExecutableLocation) && File.Exists(ExecutableLocation)) {
-                    return ExecutableLocation;
+                if (File.Exists(executableLocation) && File.Exists(executableRequiredLocation)) {
+                    return executableLocation;
                 }
             }
 
@@ -74,18 +74,18 @@ namespace AutodeskFusion360ForceSignIn {
          */
         static Process OpenApplication(String ExecutableLocation) {
             // Create a new process.
-            Process AutodeskProcess = new Process();
+            Process autodeskProcess = new Process();
 
             // Disable the command line for the process.
-            AutodeskProcess.StartInfo.UseShellExecute = false;
+            autodeskProcess.StartInfo.UseShellExecute = false;
 
             // Set the file location.
-            AutodeskProcess.StartInfo.FileName = ExecutableLocation;
+            autodeskProcess.StartInfo.FileName = ExecutableLocation;
 
             // Start and return the process.
             Console.WriteLine("Starting " + ExecutableLocation);
-            AutodeskProcess.Start();
-            return AutodeskProcess;
+            autodeskProcess.Start();
+            return autodeskProcess;
         }
 
         /*
